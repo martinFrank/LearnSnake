@@ -139,6 +139,47 @@ class SnakeGameTest {
     }
 
     @Test
+    void wouldCollideDetectsWall() {
+        SnakeGame game = newGame();
+        for (int i = 0; i < 4; i++) {
+            game.step(Turn.STRAIGHT);
+        }
+        // Kopf auf (9,5), Blick nach rechts
+        assertTrue(game.wouldCollide(Turn.STRAIGHT));
+        assertFalse(game.wouldCollide(Turn.LEFT));
+        assertFalse(game.wouldCollide(Turn.RIGHT));
+    }
+
+    @Test
+    void wouldCollideDetectsBody() {
+        SnakeGame game = growTo(5);
+        game.step(Turn.RIGHT);
+        game.step(Turn.RIGHT);
+        // Kopf (6,6), Blick nach links; rechts abbiegen führt nach (6,5) in den Körper
+        assertTrue(game.wouldCollide(Turn.RIGHT));
+        assertFalse(game.wouldCollide(Turn.STRAIGHT));
+        assertFalse(game.wouldCollide(Turn.LEFT));
+    }
+
+    @Test
+    void wouldCollideIgnoresVacatingTail() {
+        SnakeGame game = growTo(4);
+        game.step(Turn.RIGHT);
+        game.step(Turn.RIGHT);
+        assertFalse(game.wouldCollide(Turn.RIGHT));
+    }
+
+    @Test
+    void wouldCollideDoesNotChangeState() {
+        SnakeGame game = newGame();
+        List<Position> before = game.body();
+        game.wouldCollide(Turn.LEFT);
+        assertEquals(before, game.body());
+        assertEquals(Direction.RIGHT, game.direction());
+        assertEquals(0, game.steps());
+    }
+
+    @Test
     void resetRestoresInitialState() {
         SnakeGame game = growTo(5);
         game.step(Turn.LEFT);

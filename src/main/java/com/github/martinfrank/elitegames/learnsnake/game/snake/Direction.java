@@ -4,7 +4,6 @@ package com.github.martinfrank.elitegames.learnsnake.game.snake;
  * Absolute Bewegungsrichtung auf dem Spielfeld.
  * <p>
  * Koordinatensystem: x wächst nach rechts, y wächst nach unten (wie bei Bildschirmkoordinaten).
- * Die Reihenfolge der Konstanten ist im Uhrzeigersinn – darauf beruhen {@link #turnLeft()} und {@link #turnRight()}.
  */
 public enum Direction {
     UP(0, -1),
@@ -29,11 +28,21 @@ public enum Direction {
     }
 
     public Direction turnLeft() {
-        return values()[(ordinal() + 3) % 4];
+        return switch (this) {
+            case UP -> LEFT;
+            case LEFT -> DOWN;
+            case DOWN -> RIGHT;
+            case RIGHT -> UP;
+        };
     }
 
     public Direction turnRight() {
-        return values()[(ordinal() + 1) % 4];
+        return switch (this) {
+            case UP -> RIGHT;
+            case RIGHT -> DOWN;
+            case DOWN -> LEFT;
+            case LEFT -> UP;
+        };
     }
 
     public Direction apply(Turn turn) {

@@ -567,8 +567,8 @@ Die Schrittnummern beziehen sich auf Abschnitt 7.
 | Schritt | Inhalt | Status |
 |---|---|---|
 | 1 | Snake-Spiellogik (headless) mit JUnit-Tests, Maven-Projekt mit Java 25 | ✅ erledigt |
-| 2 | Environment-Schnittstelle, `SnakeEnvironment`, Random Agent, Trainer-Schleife | ⏭️ als Nächstes |
-| 3 | JavaFX-Oberfläche | offen |
+| 2 | Environment-Schnittstelle, `SnakeEnvironment`, Random Agent, Trainer-Schleife | ✅ erledigt |
+| 3 | JavaFX-Oberfläche | ⏭️ als Nächstes |
 | 4 | Rule-Based Agent | offen |
 | 5 | Q-Learning | offen |
 | 6 | Training analysieren und visualisieren | offen |
@@ -577,6 +577,12 @@ Die Schrittnummern beziehen sich auf Abschnitt 7.
 | 9 | Weitere Spiele | offen |
 | 10 | LLM-Agent (optional) | offen |
 
-Sobald Schritt 2 funktioniert, haben wir die Grundlage für unser erstes echtes Reinforcement-Learning-Experiment.
+### Messwerte
+
+| Agent | Feld | Episoden | Score avg | Score max | Schritte avg |
+|---|---|---|---|---|---|
+| Random | 10×10 | 10'000 | 0.17 | 4 | 20.1 |
+
+Diese Werte sind die untere Vergleichslinie: Jeder lernende Agent muss deutlich besser sein.
 
 **Unser Ziel:** Am Ende soll ein Agent Snake selbstständig spielen und durch Training immer besser werden. Dabei soll die Architektur so gestaltet sein, dass wir später weitere Spiele und Lernalgorithmen hinzufügen können.

@@ -91,16 +91,15 @@ public final class SnakeGame {
             return StepOutcome.HIT_WALL;
         }
 
-        boolean eats = newHead.equals(food);
-        // Das Schwanzende bewegt sich im selben Schritt weiter – außer die Schlange wächst gerade.
-        // In die Zelle des Schwanzendes zu laufen ist daher erlaubt, wenn nicht gefressen wird.
-        boolean movesIntoVacatedTail = !eats && newHead.equals(body.peekLast());
-        if (occupied.contains(newHead) && !movesIntoVacatedTail) {
+        if (hitsBody(newHead)) {
             gameOver = true;
             return StepOutcome.HIT_SELF;
         }
 
+        boolean eats = newHead.equals(food);
         if (!eats) {
+            //wenn essen=true, dann wird die Schlange um eins länger, deshalb wird in diesem Fall das letzte element NICHT entfernt
+            //wenn essen=false, dann wird das letzte element entfernt, siehe hier:
             occupied.remove(body.removeLast());
         }
         body.addFirst(newHead);
@@ -116,6 +115,23 @@ public final class SnakeGame {
             return StepOutcome.BOARD_FULL;
         }
         return StepOutcome.ATE_FOOD;
+    }
+
+    /**
+     * Vorschau: Würde die Schlange mit dieser Aktion sterben? Verändert den Spielzustand nicht.
+     * Verwendet exakt dieselbe Regel wie {@link #step(Turn)}.
+     */
+    public boolean wouldCollide(Turn turn) {
+        Position next = head().move(direction.apply(turn));
+        return !isInside(next) || hitsBody(next);
+    }
+
+    private boolean hitsBody(Position next) {
+        // Das Schwanzende bewegt sich im selben Schritt weiter – außer die Schlange wächst gerade.
+        // In die Zelle des Schwanzendes zu laufen ist daher erlaubt, wenn nicht gefressen wird.
+        boolean eats = next.equals(food);
+        boolean movesIntoVacatedTail = !eats && next.equals(body.peekLast());
+        return occupied.contains(next) && !movesIntoVacatedTail;
     }
 
     /** @return {@code false}, wenn keine freie Zelle mehr existiert */
