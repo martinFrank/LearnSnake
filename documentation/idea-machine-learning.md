@@ -568,8 +568,8 @@ Die Schrittnummern beziehen sich auf Abschnitt 7.
 |---|---|---|
 | 1 | Snake-Spiellogik (headless) mit JUnit-Tests, Maven-Projekt mit Java 25 | ✅ erledigt |
 | 2 | Environment-Schnittstelle, `SnakeEnvironment`, Random Agent, Trainer-Schleife | ✅ erledigt |
-| 3 | JavaFX-Oberfläche | ⏭️ als Nächstes |
-| 4 | Rule-Based Agent | offen |
+| 3 | JavaFX-Oberfläche | ✅ erledigt |
+| 4 | Rule-Based Agent | ⏭️ als Nächstes |
 | 5 | Q-Learning | offen |
 | 6 | Training analysieren und visualisieren | offen |
 | 7 | Eigenes neuronales Netz und Imitation Learning | offen |

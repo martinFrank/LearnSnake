@@ -130,6 +130,13 @@ class SnakeEnvironmentTest {
     }
 
     @Test
+    void actionForMatchesTurns() {
+        assertEquals(ACTION_STRAIGHT, SnakeEnvironment.actionFor(Turn.STRAIGHT));
+        assertEquals(ACTION_LEFT, SnakeEnvironment.actionFor(Turn.LEFT));
+        assertEquals(ACTION_RIGHT, SnakeEnvironment.actionFor(Turn.RIGHT));
+    }
+
+    @Test
     void customRewards() {
         SnakeEnvironment custom = new SnakeEnvironment(10, 10, 1L, new SnakeRewards(1, -5, -0.1));
         custom.reset();

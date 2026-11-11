@@ -82,6 +82,15 @@ public final class SnakeEnvironment implements Environment {
         return new StepResult(observe(), reward, terminated, truncated);
     }
 
+    /** Gegenstück zu {@link #toTurn(int)}: welche Aktionsnummer gehört zu dieser Drehung? */
+    public static int actionFor(Turn turn) {
+        return switch (turn) {
+            case STRAIGHT -> ACTION_STRAIGHT;
+            case LEFT -> ACTION_LEFT;
+            case RIGHT -> ACTION_RIGHT;
+        };
+    }
+
     private static Turn toTurn(int action) {
         return switch (action) {
             case ACTION_STRAIGHT -> Turn.STRAIGHT;

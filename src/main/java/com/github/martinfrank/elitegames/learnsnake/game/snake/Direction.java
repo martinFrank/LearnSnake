@@ -45,6 +45,21 @@ public enum Direction {
         };
     }
 
+    /**
+     * Welche relative Drehung führt von dieser Richtung zu {@code target}?
+     * Für die gleiche oder die entgegengesetzte Richtung gibt es keine Drehung – dann {@link Turn#STRAIGHT}.
+     * (Umdrehen ist in Snake nicht erlaubt.)
+     */
+    public Turn turnTowards(Direction target) {
+        if (target == turnLeft()) {
+            return Turn.LEFT;
+        }
+        if (target == turnRight()) {
+            return Turn.RIGHT;
+        }
+        return Turn.STRAIGHT;
+    }
+
     public Direction apply(Turn turn) {
         return switch (turn) {
             case STRAIGHT -> this;

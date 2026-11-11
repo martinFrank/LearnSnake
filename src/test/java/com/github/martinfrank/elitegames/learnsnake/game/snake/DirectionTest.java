@@ -30,6 +30,22 @@ class DirectionTest {
     }
 
     @Test
+    void turnTowards() {
+        assertEquals(Turn.LEFT, Direction.RIGHT.turnTowards(Direction.UP));
+        assertEquals(Turn.RIGHT, Direction.RIGHT.turnTowards(Direction.DOWN));
+        assertEquals(Turn.STRAIGHT, Direction.RIGHT.turnTowards(Direction.RIGHT));
+        assertEquals(Turn.STRAIGHT, Direction.RIGHT.turnTowards(Direction.LEFT), "Umdrehen ist nicht erlaubt");
+    }
+
+    @Test
+    void turnTowardsAndApplyFitTogether() {
+        for (Direction from : Direction.values()) {
+            assertEquals(from.turnLeft(), from.apply(from.turnTowards(from.turnLeft())));
+            assertEquals(from.turnRight(), from.apply(from.turnTowards(from.turnRight())));
+        }
+    }
+
+    @Test
     void upMeansDecreasingY() {
         assertEquals(new Position(3, 2), new Position(3, 3).move(Direction.UP));
         assertEquals(new Position(3, 4), new Position(3, 3).move(Direction.DOWN));
