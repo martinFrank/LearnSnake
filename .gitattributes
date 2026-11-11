@@ -1,0 +1,12 @@
+# Zeilenenden einheitlich als LF im Repository und im Arbeitsverzeichnis
+* text=auto eol=lf
+
+# Windows-Skripte brauchen CRLF
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Binärdateien nie verändern
+*.jar binary
+*.png binary
+*.jpg binary
+*.gif binary
