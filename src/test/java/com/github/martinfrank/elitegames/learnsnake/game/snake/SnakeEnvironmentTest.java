@@ -144,6 +144,30 @@ class SnakeEnvironmentTest {
         assertEquals(-0.1, custom.step(ACTION_STRAIGHT).reward());
     }
 
+    @Test
+    void describesObservationInWords() {
+        double[] obs = new double[OBSERVATION_SIZE];
+        obs[DIRECTION_RIGHT] = 1;
+        obs[DANGER_STRAIGHT] = 1;
+        obs[DANGER_LEFT] = 1;
+        obs[FOOD_UP] = 1;
+        obs[FOOD_LEFT] = 1;
+        assertEquals("fährt: → | Gefahr: geradeaus links | Essen: ↑ ←", describe(obs));
+
+        double[] safe = new double[OBSERVATION_SIZE];
+        safe[DIRECTION_DOWN] = 1;
+        safe[FOOD_DOWN] = 1;
+        assertEquals("fährt: ↓ | Gefahr: - | Essen: ↓", describe(safe));
+    }
+
+    @Test
+    void namesActions() {
+        assertEquals("geradeaus", actionName(ACTION_STRAIGHT));
+        assertEquals("links", actionName(ACTION_LEFT));
+        assertEquals("rechts", actionName(ACTION_RIGHT));
+        assertThrows(IllegalArgumentException.class, () -> actionName(3));
+    }
+
     private void growTo(int length) {
         SnakeGame game = env.game();
         while (game.length() < length) {

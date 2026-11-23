@@ -1,11 +1,16 @@
 package com.github.martinfrank.elitegames.learnsnake.ui;
 
+import com.github.martinfrank.elitegames.learnsnake.Main;
 import com.github.martinfrank.elitegames.learnsnake.agent.Agent;
+import com.github.martinfrank.elitegames.learnsnake.agent.QLearningAgent;
+import com.github.martinfrank.elitegames.learnsnake.agent.QLearningParameters;
+import com.github.martinfrank.elitegames.learnsnake.agent.QTable;
 import com.github.martinfrank.elitegames.learnsnake.agent.RandomAgent;
 import com.github.martinfrank.elitegames.learnsnake.agent.RuleBasedSnakeAgent;
 import com.github.martinfrank.elitegames.learnsnake.environment.StepResult;
 import com.github.martinfrank.elitegames.learnsnake.game.snake.Direction;
 import com.github.martinfrank.elitegames.learnsnake.game.snake.SnakeEnvironment;
+import com.github.martinfrank.elitegames.learnsnake.training.Trainer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -21,6 +26,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.nio.file.Files;
+import java.util.Locale;
+
 /**
  * Oberfläche zum Selbstspielen und zum Zuschauen, wie ein Agent spielt.
  * <p>
@@ -33,12 +41,21 @@ public final class SnakeApp extends Application {
     private static final int COLUMNS = 10;
     private static final int ROWS = 10;
     private static final long AGENT_RESTART_DELAY_NANOS = 1_000_000_000L;
+    /**
+     * Beim Zuschauen soll man den Lernfortschritt nach wenigen Dutzend Episoden sehen:
+     * ε sinkt deshalb viel schneller als im Training ohne Oberfläche.
+     */
+    private static final QLearningParameters LIVE_PARAMETERS = new QLearningParameters(0.1, 0.9, 1.0, 0.01, 0.95);
+    /** Falls noch keine gespeicherte Q-Table existiert, wird so lange ohne Oberfläche trainiert. */
+    private static final int FALLBACK_TRAINING_EPISODES = 5_000;
 
     /** Wer spielt? Neue Agenten (Q-Learning, ...) werden hier ergänzt. */
     private enum Mode {
         HUMAN("Selbst spielen"),
         RANDOM("Random Agent"),
-        RULE_BASED("Rule-Based Agent");
+        RULE_BASED("Rule-Based Agent"),
+        Q_LEARNING_LIVE("Q-Learning (lernt live)"),
+        Q_LEARNING_TRAINED("Q-Learning (trainiert)");
 
         private final String label;
 
@@ -158,10 +175,31 @@ public final class SnakeApp extends Application {
             case HUMAN -> keyboard;
             case RANDOM -> new RandomAgent(environment.actionCount(), System.nanoTime());
             case RULE_BASED -> new RuleBasedSnakeAgent();
+            case Q_LEARNING_LIVE -> new QLearningAgent(SnakeEnvironment.STATE_ENCODER,
+                    SnakeEnvironment.ACTION_COUNT, LIVE_PARAMETERS, System.nanoTime());
+            case Q_LEARNING_TRAINED -> trainedQLearningAgent();
         };
         episodes = 0;
         bestScore = 0;
         newGame();
+    }
+
+    /**
+     * Lädt die von {@link Main} gespeicherte Q-Table. Gibt es noch keine, wird kurz ohne Oberfläche trainiert.
+     */
+    private static QLearningAgent trainedQLearningAgent() {
+        QLearningAgent agent;
+        if (Files.exists(Main.Q_TABLE_FILE)) {
+            agent = new QLearningAgent(SnakeEnvironment.STATE_ENCODER, QTable.load(Main.Q_TABLE_FILE),
+                    QLearningParameters.DEFAULT, 0L);
+        } else {
+            agent = new QLearningAgent(SnakeEnvironment.STATE_ENCODER, SnakeEnvironment.ACTION_COUNT,
+                    QLearningParameters.DEFAULT, System.nanoTime());
+            new Trainer(new SnakeEnvironment(COLUMNS, ROWS, System.nanoTime()), agent)
+                    .run(FALLBACK_TRAINING_EPISODES);
+        }
+        agent.setTraining(false);
+        return agent;
     }
 
     private void newGame() {
@@ -210,8 +248,13 @@ public final class SnakeApp extends Application {
 
     private void render() {
         view.draw(environment.game(), message());
-        status.setText(String.format("Score: %d    Länge: %d    Schritte: %d    Episoden: %d    Bester Score: %d",
-                environment.score(), environment.game().length(), environment.game().steps(), episodes, bestScore));
+        String text = String.format("Score: %d    Länge: %d    Schritte: %d    Episoden: %d    Bester Score: %d",
+                environment.score(), environment.game().length(), environment.game().steps(), episodes, bestScore);
+        if (agent instanceof QLearningAgent qAgent && qAgent.isTraining()) {
+            text += String.format(Locale.ROOT, "    ε: %.3f    bekannte Zustände: %d",
+                    qAgent.epsilon(), qAgent.table().visitedStates().size());
+        }
+        status.setText(text);
     }
 
     private String message() {

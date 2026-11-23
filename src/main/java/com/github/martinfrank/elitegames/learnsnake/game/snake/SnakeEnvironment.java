@@ -1,5 +1,6 @@
 package com.github.martinfrank.elitegames.learnsnake.game.snake;
 
+import com.github.martinfrank.elitegames.learnsnake.environment.BinaryStateEncoder;
 import com.github.martinfrank.elitegames.learnsnake.environment.Environment;
 import com.github.martinfrank.elitegames.learnsnake.environment.StepResult;
 
@@ -40,6 +41,12 @@ public final class SnakeEnvironment implements Environment {
     public static final int FOOD_DOWN = 9;
     public static final int FOOD_LEFT = 10;
     public static final int OBSERVATION_SIZE = 11;
+
+    /**
+     * Für tabellarische Agenten (Q-Learning): Alle Merkmale sind Ja/Nein-Werte, also wird jedes zu einem Bit.
+     * Das ergibt 2^11 = 2048 mögliche Zustände.
+     */
+    public static final BinaryStateEncoder STATE_ENCODER = new BinaryStateEncoder(OBSERVATION_SIZE);
 
     public static final int STARVATION_FACTOR = 100;
 
@@ -89,6 +96,54 @@ public final class SnakeEnvironment implements Environment {
             case LEFT -> ACTION_LEFT;
             case RIGHT -> ACTION_RIGHT;
         };
+    }
+
+    /** Kurzer Name einer Aktion, z.B. für Tabellen und Ausgaben. */
+    public static String actionName(int action) {
+        return switch (toTurn(action)) {
+            case STRAIGHT -> "geradeaus";
+            case LEFT -> "links";
+            case RIGHT -> "rechts";
+        };
+    }
+
+    /**
+     * Beschreibt eine Observation in Worten, z.B. {@code "fährt: ↑ | Gefahr: geradeaus | Essen: ↑ →"}.
+     * Hilfreich, um eine Q-Table zu lesen.
+     */
+    public static String describe(double[] observation) {
+        StringBuilder text = new StringBuilder("fährt:");
+        appendIf(text, observation, DIRECTION_UP, "↑");
+        appendIf(text, observation, DIRECTION_RIGHT, "→");
+        appendIf(text, observation, DIRECTION_DOWN, "↓");
+        appendIf(text, observation, DIRECTION_LEFT, "←");
+
+        text.append(" | Gefahr:");
+        int lengthBefore = text.length();
+        appendIf(text, observation, DANGER_STRAIGHT, "geradeaus");
+        appendIf(text, observation, DANGER_LEFT, "links");
+        appendIf(text, observation, DANGER_RIGHT, "rechts");
+        if (text.length() == lengthBefore) {
+            text.append(" -");
+        }
+
+        text.append(" | Essen:");
+        appendIf(text, observation, FOOD_UP, "↑");
+        appendIf(text, observation, FOOD_RIGHT, "→");
+        appendIf(text, observation, FOOD_DOWN, "↓");
+        appendIf(text, observation, FOOD_LEFT, "←");
+        return text.toString();
+    }
+
+    /** Wie {@link #describe(double[])}, aber für eine Zustandsnummer aus {@link #STATE_ENCODER}. */
+    public static String describeState(int state) {
+        return describe(STATE_ENCODER.decode(state));
+    }
+
+    private static void appendIf(StringBuilder text, double[] observation, int feature, String word) {
+        if (observation[feature] > 0.5) {
+            text.append(' ').append(word);
+        }
     }
 
     private static Turn toTurn(int action) {

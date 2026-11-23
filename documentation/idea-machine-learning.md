@@ -570,8 +570,8 @@ Die Schrittnummern beziehen sich auf Abschnitt 7.
 | 2 | Environment-Schnittstelle, `SnakeEnvironment`, Random Agent, Trainer-Schleife | ✅ erledigt |
 | 3 | JavaFX-Oberfläche | ✅ erledigt |
 | 4 | Rule-Based Agent (nur auf Basis der 11 Merkmale) | ✅ erledigt |
-| 5 | Q-Learning | ⏭️ als Nächstes |
-| 6 | Training analysieren und visualisieren | offen |
+| 5 | Q-Learning (Q-Table, ε-greedy, Speichern/Laden, Live-Modus in der Oberfläche) | ✅ erledigt |
+| 6 | Training analysieren und visualisieren | ⏭️ als Nächstes |
 | 7 | Eigenes neuronales Netz und Imitation Learning | offen |
 | 8 | Deep Q-Network | offen |
 | 9 | Weitere Spiele | offen |
@@ -579,11 +579,21 @@ Die Schrittnummern beziehen sich auf Abschnitt 7.
 
 ### Messwerte
 
+Ausgewertet mit `Main`, Seed 4242 (der Q-Learning-Agent wurde mit Seed 42 trainiert, also auf anderen Spielen):
+
 | Agent | Feld | Episoden | Score avg | Score max | Schritte avg |
 |---|---|---|---|---|---|
 | Random | 10×10 | 10'000 | 0.17 | 4 | 20.1 |
-| Rule-Based | 10×10 | 10'000 | 18.06 | 49 | 145.0 |
+| Rule-Based | 10×10 | 10'000 | 18.08 | 46 | 144.6 |
+| Q-Learning (10'000 Episoden trainiert, ohne Zufall) | 10×10 | 10'000 | 20.78 | 47 | 172.1 |
 
 Random ist die untere Vergleichslinie, Rule-Based die Messlatte: Ein lernender Agent mit denselben 11 Merkmalen soll mindestens an Rule-Based herankommen. Rule-Based scheitert fast immer daran, dass er sich mit dem eigenen Körper einschließt – die Merkmale schauen nur einen Schritt voraus.
+
+Q-Learning (α = 0.1, γ = 0.9, ε von 1.0 mit Faktor 0.998 pro Episode bis 0.01) übertrifft Rule-Based. Beobachtungen:
+
+- Von 2048 möglichen Zuständen kommen nur 256 im Spiel vor (z.B. ist immer genau eine Richtung gesetzt).
+- Nach rund 2000 Episoden ist der Lernfortschritt im Wesentlichen abgeschlossen.
+- Während des Trainings liegt der Score bei etwa 16.7, in der Auswertung ohne Zufall bei 20.8: Selbst 1 % zufällige Züge kosten spürbar Punkte.
+- Die gelernte Tabelle liegt in `models/snake-qtable.csv` und wird von der Oberfläche im Modus „Q-Learning (trainiert)“ geladen.
 
 **Unser Ziel:** Am Ende soll ein Agent Snake selbstständig spielen und durch Training immer besser werden. Dabei soll die Architektur so gestaltet sein, dass wir später weitere Spiele und Lernalgorithmen hinzufügen können.
