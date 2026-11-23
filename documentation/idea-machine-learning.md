@@ -569,8 +569,8 @@ Die Schrittnummern beziehen sich auf Abschnitt 7.
 | 1 | Snake-Spiellogik (headless) mit JUnit-Tests, Maven-Projekt mit Java 25 | ✅ erledigt |
 | 2 | Environment-Schnittstelle, `SnakeEnvironment`, Random Agent, Trainer-Schleife | ✅ erledigt |
 | 3 | JavaFX-Oberfläche | ✅ erledigt |
-| 4 | Rule-Based Agent | ⏭️ als Nächstes |
-| 5 | Q-Learning | offen |
+| 4 | Rule-Based Agent (nur auf Basis der 11 Merkmale) | ✅ erledigt |
+| 5 | Q-Learning | ⏭️ als Nächstes |
 | 6 | Training analysieren und visualisieren | offen |
 | 7 | Eigenes neuronales Netz und Imitation Learning | offen |
 | 8 | Deep Q-Network | offen |
@@ -582,7 +582,8 @@ Die Schrittnummern beziehen sich auf Abschnitt 7.
 | Agent | Feld | Episoden | Score avg | Score max | Schritte avg |
 |---|---|---|---|---|---|
 | Random | 10×10 | 10'000 | 0.17 | 4 | 20.1 |
+| Rule-Based | 10×10 | 10'000 | 18.06 | 49 | 145.0 |
 
-Diese Werte sind die untere Vergleichslinie: Jeder lernende Agent muss deutlich besser sein.
+Random ist die untere Vergleichslinie, Rule-Based die Messlatte: Ein lernender Agent mit denselben 11 Merkmalen soll mindestens an Rule-Based herankommen. Rule-Based scheitert fast immer daran, dass er sich mit dem eigenen Körper einschließt – die Merkmale schauen nur einen Schritt voraus.
 
 **Unser Ziel:** Am Ende soll ein Agent Snake selbstständig spielen und durch Training immer besser werden. Dabei soll die Architektur so gestaltet sein, dass wir später weitere Spiele und Lernalgorithmen hinzufügen können.

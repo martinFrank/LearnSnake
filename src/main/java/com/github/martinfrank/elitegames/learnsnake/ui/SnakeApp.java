@@ -2,6 +2,7 @@ package com.github.martinfrank.elitegames.learnsnake.ui;
 
 import com.github.martinfrank.elitegames.learnsnake.agent.Agent;
 import com.github.martinfrank.elitegames.learnsnake.agent.RandomAgent;
+import com.github.martinfrank.elitegames.learnsnake.agent.RuleBasedSnakeAgent;
 import com.github.martinfrank.elitegames.learnsnake.environment.StepResult;
 import com.github.martinfrank.elitegames.learnsnake.game.snake.Direction;
 import com.github.martinfrank.elitegames.learnsnake.game.snake.SnakeEnvironment;
@@ -36,7 +37,8 @@ public final class SnakeApp extends Application {
     /** Wer spielt? Neue Agenten (Q-Learning, ...) werden hier ergänzt. */
     private enum Mode {
         HUMAN("Selbst spielen"),
-        RANDOM("Random Agent");
+        RANDOM("Random Agent"),
+        RULE_BASED("Rule-Based Agent");
 
         private final String label;
 
@@ -155,6 +157,7 @@ public final class SnakeApp extends Application {
         agent = switch (newMode) {
             case HUMAN -> keyboard;
             case RANDOM -> new RandomAgent(environment.actionCount(), System.nanoTime());
+            case RULE_BASED -> new RuleBasedSnakeAgent();
         };
         episodes = 0;
         bestScore = 0;
