@@ -61,6 +61,15 @@
         <configuration>
           <mainClass>com.github.martinfrank.elitegames.learnsnake.ui.SnakeApp</mainClass>
         </configuration>
+        <executions>
+          <execution>
+            <!-- Lernkurven: mvn javafx:run@chart -->
+            <id>chart</id>
+            <configuration>
+              <mainClass>com.github.martinfrank.elitegames.learnsnake.ui.TrainingChartApp</mainClass>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

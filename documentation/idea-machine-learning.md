@@ -571,7 +571,7 @@ Die Schrittnummern beziehen sich auf Abschnitt 7.
 | 3 | JavaFX-Oberfläche | ✅ erledigt |
 | 4 | Rule-Based Agent (nur auf Basis der 11 Merkmale) | ✅ erledigt |
 | 5 | Q-Learning (Q-Table, ε-greedy, Speichern/Laden, Live-Modus in der Oberfläche) | ✅ erledigt |
-| 6 | Training analysieren und visualisieren | ⏭️ als Nächstes |
+| 6 | Training analysieren und visualisieren | 🟡 begonnen: CSV-Export, regelmäßige Auswertung, Lernkurven-Diagramm. Offen: Hyperparameter und Seed je Experiment protokollieren, mehrere Seeds automatisch vergleichen, besten Stand sichern |
 | 7 | Eigenes neuronales Netz und Imitation Learning | offen |
 | 8 | Deep Q-Network | offen |
 | 9 | Weitere Spiele | offen |
@@ -585,15 +585,41 @@ Ausgewertet mit `Main`, Seed 4242 (der Q-Learning-Agent wurde mit Seed 42 traini
 |---|---|---|---|---|---|
 | Random | 10×10 | 10'000 | 0.17 | 4 | 20.1 |
 | Rule-Based | 10×10 | 10'000 | 18.08 | 46 | 144.6 |
-| Q-Learning (10'000 Episoden trainiert, ohne Zufall) | 10×10 | 10'000 | 20.78 | 47 | 172.1 |
+| Q-Learning (10'000 Episoden trainiert, ohne Zufall) | 10×10 | 10'000 | 18–21 | ~47 | ~145–172 |
 
 Random ist die untere Vergleichslinie, Rule-Based die Messlatte: Ein lernender Agent mit denselben 11 Merkmalen soll mindestens an Rule-Based herankommen. Rule-Based scheitert fast immer daran, dass er sich mit dem eigenen Körper einschließt – die Merkmale schauen nur einen Schritt voraus.
 
-Q-Learning (α = 0.1, γ = 0.9, ε von 1.0 mit Faktor 0.998 pro Episode bis 0.01) übertrifft Rule-Based. Beobachtungen:
+**Q-Learning liegt etwa gleichauf mit Rule-Based.** Ein einzelner Lauf ist nicht aussagekräftig: Mit Trainings-Seed 42 ergab sich 20.78, über 5 Trainings-Seeds gemittelt nach 10'000 Episoden 18.2 (Einzelwerte 17.7–18.9, ε-Abfall 0.998).
+
+Abhängigkeit von der Trainingsdauer (ε-Abfall 0.998, Mittel über 5 Trainings-Seeds, je 2000 Auswertungsepisoden ohne Zufall):
+
+| Episoden | 100 | 300 | 1'000 | 2'000 | 3'000 | 10'000 | 100'000 | 300'000 |
+|---|---|---|---|---|---|---|---|---|
+| Score avg | 4.0 | 7.0 | 13.9 | 16.7 | 17.6 | 18.2 | 19.0 | 18.6 |
+
+Beobachtungen:
 
 - Von 2048 möglichen Zuständen kommen nur 256 im Spiel vor (z.B. ist immer genau eine Richtung gesetzt).
-- Nach rund 2000 Episoden ist der Lernfortschritt im Wesentlichen abgeschlossen.
-- Während des Trainings liegt der Score bei etwa 16.7, in der Auswertung ohne Zufall bei 20.8: Selbst 1 % zufällige Züge kosten spürbar Punkte.
+- Nach rund 3000 Episoden ist der Lernfortschritt im Wesentlichen abgeschlossen. Danach schwankt das Ergebnis nur noch: Mehr Training hilft nicht, weil die 11 Merkmale die Grenze setzen. Ein Zustand steht für viele verschiedene Spielsituationen, die Tabelle lernt deren Durchschnitt.
+- Mit konstanter Lernrate α kommt die Tabelle nie ganz zur Ruhe – wann man aufhört, ist ein Stück weit Zufall.
+- Die Scores während des Trainings sind durch ε verfälscht. Aussagekräftig ist nur die Auswertung ohne Zufall.
 - Die gelernte Tabelle liegt in `models/snake-qtable.csv` und wird von der Oberfläche im Modus „Q-Learning (trainiert)“ geladen.
+
+### Messgrößen und Lernkurven
+
+`Main` schreibt alle Messwerte als CSV nach `results/` (nicht im Git). Die Spaltennamen folgen den in RL üblichen Messgrößen (Gymnasium `RecordEpisodeStatistics`, Stable-Baselines3 `Monitor`/`EvalCallback`), definiert in `training/Metrics`:
+
+| Datei | Inhalt |
+|---|---|
+| `random.csv`, `rule-based.csv`, `q-learning.csv` | eine Zeile pro Auswertungsepisode: `episode, total_steps, return, length, score, truncated` |
+| `q-learning-training.csv` | eine Zeile pro Trainingsepisode, zusätzlich `epsilon` |
+| `q-learning-evaluation.csv` | alle 250 Trainingsepisoden: 200 Episoden ohne Zufall, `mean_return, std_return, mean_score, std_score, mean_length, max_score` |
+
+- **return**: Summe der Rewards einer Episode – das, was der Agent maximiert
+- **length**: Schritte der Episode
+- **total_steps**: Schritte seit Beginn („Timesteps“), in der Forschung die übliche x-Achse
+- **score**: spielspezifisch (gefressenes Essen)
+
+Anzeigen mit `startChart.bat` (bzw. `mvn javafx:run@chart`): Messgröße, x-Achse (Episoden oder Timesteps) und Fenster des gleitenden Durchschnitts sind wählbar.
 
 **Unser Ziel:** Am Ende soll ein Agent Snake selbstständig spielen und durch Training immer besser werden. Dabei soll die Architektur so gestaltet sein, dass wir später weitere Spiele und Lernalgorithmen hinzufügen können.

@@ -39,3 +39,6 @@ build/
 .DS_Store
 ### IntelliJ IDEA (lokale Einstellungen) ###
 .idea/workspace.xml
+
+### Messwerte (von Main erzeugt) ###
+results/

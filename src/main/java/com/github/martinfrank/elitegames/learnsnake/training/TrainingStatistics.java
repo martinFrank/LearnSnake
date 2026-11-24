@@ -1,6 +1,7 @@
 package com.github.martinfrank.elitegames.learnsnake.training;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +39,24 @@ public final class TrainingStatistics {
 
     public double averageReward() {
         return results.stream().mapToDouble(EpisodeResult::totalReward).average().orElse(0);
+    }
+
+    /** Standardabweichung des Scores: Wie stark schwanken die einzelnen Episoden um den Durchschnitt? */
+    public double scoreStandardDeviation() {
+        return standardDeviation(results.stream().mapToDouble(EpisodeResult::score).toArray());
+    }
+
+    public double rewardStandardDeviation() {
+        return standardDeviation(results.stream().mapToDouble(EpisodeResult::totalReward).toArray());
+    }
+
+    private static double standardDeviation(double[] values) {
+        if (values.length == 0) {
+            return 0;
+        }
+        double mean = Arrays.stream(values).average().orElse(0);
+        double sumOfSquares = Arrays.stream(values).map(v -> (v - mean) * (v - mean)).sum();
+        return Math.sqrt(sumOfSquares / values.length);
     }
 
     /** Anteil der Episoden, die durch das Schrittlimit abgebrochen wurden (0..1). */
